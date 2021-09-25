@@ -1,6 +1,8 @@
 name: Static analysis
 
-on: pull_request
+# You can be more specific, but it currently only works on pull requests
+on: [pull_request]
+
 
 jobs:
   clang-tidy:
@@ -38,3 +40,4 @@ jobs:
         # to avoid GitHub API timeouts for heavily loaded
         # pull requests
         suggestions_per_comment: 10
+
