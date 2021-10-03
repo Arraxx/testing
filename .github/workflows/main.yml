@@ -8,8 +8,7 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    
+
     - name: Install Dependencies
     - run: |
         sudo add-apt-repository universe
@@ -44,7 +43,8 @@ jobs:
         export LD_LIBRARY_PATH="/PATH/TO/OpenMS/lib:$LD_LIBRARY_PATH"
         export PATH=$PATH:/PATH/TO/OpenMS/bin
         source ~/.bashrc
-        
+    
+    - uses: actions/checkout@v2
     - name: Install clang-tidy
       run: |
         sudo apt-get update
