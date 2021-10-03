@@ -16,7 +16,11 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y clang-tidy
-        
+    - name: Prepare compile_commands.json
+      run: |
+        cd build
+        CC=clang CXX=clang++ CMAKE_EXPORT_COMPILE_COMMANDS=ON cmake .. ${{env.FEATURES}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{matrix.cmake_flags}} 
+
     - name: Install Dependencies
     - run: |
         sudo add-apt-repository universe
@@ -51,11 +55,7 @@ jobs:
         export LD_LIBRARY_PATH="/PATH/TO/OpenMS/lib:$LD_LIBRARY_PATH"
         export PATH=$PATH:/PATH/TO/OpenMS/bin
         source ~/.bashrc
-    - name: Prepare compile_commands.json
-      run: |
-        cd build
-        CC=clang CXX=clang++ CMAKE_EXPORT_COMPILE_COMMANDS=ON cmake .. ${{env.FEATURES}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{matrix.cmake_flags}} 
-
+    
     - name: Create results directory
       run: |
         mkdir clang-tidy-result
