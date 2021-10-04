@@ -1,6 +1,5 @@
 name: Static analysis
 
-# You can be more specific, but it currently only works on pull requests
 on: [pull_request]
 
 
@@ -8,6 +7,44 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-20.04
     steps:
+    
+    - name: Install Dependencies
+    - run: |
+        sudo add-apt-repository universe
+        sudo apt update
+        sudo apt-get install build-essential cmake autoconf patch libtool git automake
+        sudo apt-get install qtbase5-dev libqt5svg5-dev libqt5opengl5-dev
+        sudo apt-get install libeigen3-dev libsqlite3-dev libwildmagic-dev libboost-random1.62-dev \libboost-regex1.62-dev libboost-iostreams1.62-dev libboost-date-time1.62-dev libboost-math1.62-dev \libxerces-c-dev libglpk-dev zlib1g-dev libsvm-dev libbz2-dev seqan-dev coinor-libcoinmp-dev libhdf5-dev
+ 
+    
+    - name: Building Remaining Dependencies
+    - run: |
+        git submodule update --init contrib
+        cd ..
+        mkdir contrib-build
+        cd contrib-build
+        cmake -DBUILD_TYPE=LIST ../OpenMS/contrib
+        cmake -DBUILD_TYPE=WILDMAGIC ../OpenMS/contrib
+        cmake -DBUILD_TYPE=EIGEN ../OpenMS/contrib
+        cmake -DBUILD_TYPE=ALL -DNUMBER_OF_JOBS=4 ../OpenMS/contrib
+
+    
+    - name: Building Openms
+    - run: |
+        mkdir OpenMS-build
+        cd OpenMS-build
+        -DCMAKE_PREFIX_PATH="/usr;/usr/local"
+        cmake .
+        make
+
+
+    - name: Environment
+    - run: |
+        export LD_LIBRARY_PATH="/PATH/TO/OpenMS/lib:$LD_LIBRARY_PATH"
+        export PATH=$PATH:/PATH/TO/OpenMS/bin
+        source ~/.bashrc
+
+    
     - uses: actions/checkout@v2
     - name: Install clang-tidy
       run: |
@@ -18,6 +55,7 @@ jobs:
         cd build
         CC=clang CXX=clang++ CMAKE_EXPORT_COMPILE_COMMANDS=ON cmake .. ${{env.FEATURES}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{matrix.cmake_flags}} 
 
+    
     - name: Create results directory
       run: |
         mkdir clang-tidy-result
